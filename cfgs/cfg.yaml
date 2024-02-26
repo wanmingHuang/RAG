@@ -1,7 +1,3 @@
-urls:
-  allianz: "https://www.allianz.com.au/openCurrentPolicyDocument/POL011BA/$File/POL011BA.pdf"
-  nrma: "https://www.nrma.com.au/sites/nrma/files/nrma/policy_booklets/nrma-car-pds-1023-east.pdf"
-
 source: "allianz" # allianz or nrma
 
 emb_model_name: "Cohere"  # "OpenAI" or "Cohere"

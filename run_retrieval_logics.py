@@ -22,6 +22,7 @@ from langchain_core.embeddings import Embeddings
 from utils import load_config
 from run_fine_tune_model import Inferencer
 from rag_logger import RAGLogger
+from constants import SourceUrl
 
 logger = RAGLogger(__name__).get_logger()
 
@@ -289,7 +290,7 @@ class Evaluator:
         questions, reference_answers = self.load_test_dataset(cfg)
 
         answers = runner.run(
-            source_url=cfg['urls'][cfg['source']],
+            source_url=SourceUrl[cfg['source'].upper()].value,
             question=questions
         )
 
