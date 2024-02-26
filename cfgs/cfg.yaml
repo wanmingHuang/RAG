@@ -1,0 +1,17 @@
+urls:
+  allianz: "https://www.allianz.com.au/openCurrentPolicyDocument/POL011BA/$File/POL011BA.pdf"
+  nrma: "https://www.nrma.com.au/sites/nrma/files/nrma/policy_booklets/nrma-car-pds-1023-east.pdf"
+
+source: "allianz" # allianz or nrma
+
+emb_model_name: "Cohere"  # "OpenAI" or "Cohere"
+
+retriever:
+  top_k: 5
+  retriever_type: "vector"  # "vector "or "hybrid"
+
+generator:
+  llm_type: "OpenAI"  # OpenAI or finetuned
+
+evaluator:
+  data_file: "data/allianz/test_data.csv"

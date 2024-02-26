@@ -1,0 +1,15 @@
+base_model: "openaccess-ai-collective/tiny-mistral"
+
+train:
+  data: "data/allianz/train_data.csv"
+  max_steps: 25
+  eval_steps: 25
+  lr: 2.5e-5
+  save_dir: "ckpt/"
+
+eval:
+  data: "data/allianz/eval_data.csv"
+
+inf:
+  ckpt: "ckpt/checkpoint-25"
+  max_new_token: 128

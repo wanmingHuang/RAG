@@ -1,0 +1,16 @@
+# Python virtual environments
+.venv/
+
+# env variables
+.env
+
+# Byte-compiled / optimized files
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# Custom directories for data, checkpoints, and configurations
+data/
+ckpt/
