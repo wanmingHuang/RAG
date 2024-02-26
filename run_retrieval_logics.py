@@ -1,6 +1,7 @@
 import os
 from typing import List, Union, Tuple
 import argparse
+from datetime import datetime
 
 import pandas as pd
 from dotenv import load_dotenv
@@ -18,6 +19,10 @@ from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
+
+from sagemaker.session import Session
+from sagemaker.analytics import ExperimentAnalytics
+from sagemaker.experiments import Run
 
 from utils import load_config
 from run_fine_tune_model import Inferencer
@@ -272,8 +277,26 @@ class Evaluator:
             results.append(scores)
 
         return results
+    
+    def log_evaluation(self, run: Run, cfg: dict, scores: dict):
+        """Logs the evaluation scores."""
+        run.log_parameters(cfg)
+        for rouge_metric, values in scores.items():
+            for metric_type, value in values.items():
+                metric_name = f'{rouge_metric}_{metric_type}'
+                run.log_metric(metric_name, value)
 
-    def evaluate_single(self, cfg):
+    def report_metrics(self) -> pd.DataFrame:
+        """Reports the metrics of the evaluation using Sagemaker"""
+        sagemaker_session = Session()
+        analytics = ExperimentAnalytics(
+            sagemaker_session=sagemaker_session,
+            experiment_name='rag-exp'
+        )
+        df = analytics.dataframe()
+        return df
+
+    def evaluate_single(self, cfg: dict):
         """
         Evaluates the RAG process for a single configuration and returns the Rouge scores.
 
@@ -283,19 +306,23 @@ class Evaluator:
         Returns:
             dict: A dictionary containing the Rouge scores.
         """
+        """Evaluates the RAG process for a single configuration and returns the Rouge scores."""
         logger.info('Start evaluating')
         logger.info(cfg)
-        runner = RAGRunner(cfg)
 
         questions, reference_answers = self.load_test_dataset(cfg)
 
-        answers = runner.run(
-            source_url=SourceUrl[cfg['source'].upper()].value,
-            question=questions
-        )
+        cur_time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        with Run(experiment_name=cfg['source'], run_name=f"run-{cur_time}") as run:
+            runner = RAGRunner(cfg)
+            answers = runner.run(source_url=SourceUrl[cfg['source'].upper()].value, question=questions)
 
-        scores = self.rouge.get_scores(answers, reference_answers, avg=True)
+            scores = self.rouge.get_scores(answers, reference_answers, avg=True)
+            self.log_evaluation(run, cfg, scores)
+
+        metrics_df = self.report_metrics()
         logger.info(scores)
+
         return scores
 
 if __name__ == "__main__":

@@ -10,6 +10,7 @@ __pycache__/
 
 # Logs
 *.log
+*.json
 
 # Custom directories for data, checkpoints, and configurations
 data/
